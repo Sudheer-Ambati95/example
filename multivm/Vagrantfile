@@ -1,0 +1,42 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Define the first VM: web01
+  config.vm.define "web01" do |web01|
+    web01.vm.box = "ubuntu/focal64"
+    web01.vm.hostname = "web01"
+    web01.vm.network "private_network", ip: "192.168.56.41"
+  end
+
+  # Define the second VM: web02
+  config.vm.define "web02" do |web02|
+    web02.vm.box = "ubuntu/focal64"
+    web02.vm.hostname = "web02"
+    web02.vm.network "private_network", ip: "192.168.56.42"
+  end
+
+  # Define the second VM: web03
+  config.vm.define "web03" do |web03|
+    web03.vm.box = "ubuntu/focal64"
+    web03.vm.hostname = "web02"
+    web03.vm.network "private_network", ip: "192.168.56.44"
+  end
+
+  # Define the third VM: db01
+  config.vm.define "db01" do |db01|
+    db01.vm.box = "centos/7"
+    db01.vm.hostname = "db01"
+    db01.vm.network "private_network", ip: "192.168.56.43"
+
+    # Provision db01 using a shell script
+    db01.vm.provision "shell", inline: <<-SHELL
+      # Update package list and install MariaDB
+      yum update -y wget unzip mariadb-server -y
+
+      # Enable and start MariaDB
+      systemctl enable mariadb
+      systemctl start mariadb
+
+    SHELL
+  end
+end
